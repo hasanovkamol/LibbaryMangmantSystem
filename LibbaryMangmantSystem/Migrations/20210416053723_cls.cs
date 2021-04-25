@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LibbaryMangmantSystem.Migrations
 {
-    public partial class AddMaodel : Migration
+    public partial class cls : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -179,6 +179,7 @@ namespace LibbaryMangmantSystem.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     AuthorBook = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GenreId = table.Column<int>(type: "int", nullable: false)
                 },

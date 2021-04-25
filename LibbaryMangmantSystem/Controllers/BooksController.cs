@@ -7,23 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibbaryMangmantSystem.Data;
 using LibbaryMangmantSystem.Models;
+using LibbaryMangmantSystem.Interface;
+using LibbaryMangmantSystem.Service;
 
 namespace LibbaryMangmantSystem.Controllers
 {
     public class BooksController : Controller
     {
-        private readonly DataModelContext _context;
+        private readonly IRepository<Book> _Book;
+        private readonly BookService bookService;
 
-        public BooksController(DataModelContext context)
+        public BooksController(IRepository<Book> book, BookService _bookService)
         {
-            _context = context;
+            _Book = book;
+            bookService = _bookService;
         }
 
         // GET: Books
         public async Task<IActionResult> Index()
         {
-            var dataModelContext = _context.Books.Include(b => b.Genres);
-            return View(await dataModelContext.ToListAsync());
+            return View(await bookService.GetAllBooks());
         }
 
         // GET: Books/Details/5
@@ -33,10 +36,7 @@ namespace LibbaryMangmantSystem.Controllers
             {
                 return NotFound();
             }
-
-            var book = await _context.Books
-                .Include(b => b.Genres)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var book = await bookService.GetById(id);
             if (book == null)
             {
                 return NotFound();
@@ -48,24 +48,20 @@ namespace LibbaryMangmantSystem.Controllers
         // GET: Books/Create
         public IActionResult Create()
         {
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id");
+            ViewData["GenreId"] = new SelectList(bookService.GetAllGenre(), "Id", "Id");
             return View();
         }
 
-        // POST: Books/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,AuthorBook,GenreId")] Book book)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(book);
-                await _context.SaveChangesAsync();
+               await bookService.AddBook(book);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id", book.GenreId);
+            ViewData["GenreId"] = new SelectList(bookService.GetAllGenre(), "Id", "Id", book.GenreId);
             return View(book);
         }
 
@@ -77,18 +73,15 @@ namespace LibbaryMangmantSystem.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book =await bookService.GetById(id);
             if (book == null)
             {
                 return NotFound();
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id", book.GenreId);
+            ViewData["GenreId"] = new SelectList(bookService.GetAllGenre(), "Id", "Id", book.GenreId);
             return View(book);
         }
 
-        // POST: Books/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,AuthorBook,GenreId")] Book book)
@@ -102,8 +95,7 @@ namespace LibbaryMangmantSystem.Controllers
             {
                 try
                 {
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
+                    await bookService.UpdateBook(book);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,7 +110,7 @@ namespace LibbaryMangmantSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Id", book.GenreId);
+            ViewData["GenreId"] = new SelectList(bookService.GetAllGenre(), "Id", "Id", book.GenreId);
             return View(book);
         }
 
@@ -129,10 +121,7 @@ namespace LibbaryMangmantSystem.Controllers
             {
                 return NotFound();
             }
-
-            var book = await _context.Books
-                .Include(b => b.Genres)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var book = await bookService.GetById(id);
             if (book == null)
             {
                 return NotFound();
@@ -141,20 +130,17 @@ namespace LibbaryMangmantSystem.Controllers
             return View(book);
         }
 
-        // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var book = await _context.Books.FindAsync(id);
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
+             await bookService.DeleteBook(id);
             return RedirectToAction(nameof(Index));
         }
 
         private bool BookExists(int id)
         {
-            return _context.Books.Any(e => e.Id == id);
+            return bookService.Exists(id); 
         }
     }
 }

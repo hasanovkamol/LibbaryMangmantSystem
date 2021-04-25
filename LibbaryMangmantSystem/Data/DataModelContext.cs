@@ -13,7 +13,7 @@ namespace LibbaryMangmantSystem.Data
         public DataModelContext(DbContextOptions<DataModelContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
         public DbSet<Book> Books { get; set; }
         public DbSet<Genre> Genres { get; set; }

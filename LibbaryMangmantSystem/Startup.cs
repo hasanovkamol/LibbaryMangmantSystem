@@ -1,4 +1,8 @@
 using LibbaryMangmantSystem.Data;
+using LibbaryMangmantSystem.Interface;
+using LibbaryMangmantSystem.Models;
+using LibbaryMangmantSystem.Repository;
+using LibbaryMangmantSystem.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -35,6 +39,11 @@ namespace LibbaryMangmantSystem
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<DataModelContext>();
+            services.AddTransient<IRepository<Book>, RepositoryBook>();
+            services.AddTransient<BookService, BookService>();
+            //services.AddTransient<IRepository<Genre>, GenreService>();
+            //services.AddTransient<GenreService, GenreService>();
+
             services.AddAuthentication();
             services.AddControllersWithViews();
         }

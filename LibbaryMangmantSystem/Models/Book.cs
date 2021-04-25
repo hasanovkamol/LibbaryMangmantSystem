@@ -11,6 +11,7 @@ namespace LibbaryMangmantSystem.Models
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
+        public bool IsDeleted { get; set; }
         public string AuthorBook { get; set; }
         public int GenreId { get; set; }
         public Genre Genres { get; set; }
